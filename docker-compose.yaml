@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+    prometheus:
+      image: prom/prometheus:latest
+      volumes:
+        - ./prometheus:/etc/prometheus #ионтируем папку в папку
+      container_name: prometheus
+      hostname: prometheus #имя хоста - имя контенер
+      command:
+        - --config.file=/etc/prometheus/prometheus.yml
+      ports: 
+        - 9725:9090 #по умолчанию на входе 9090
+      restart: always
+      environment:
+        - TZ=Europe/Moscow #таймзона
+      networks:
+        - monitoring_system
+    grafana:
+      image: grafana/grafana:latest
+      user: root
+      depends_on:
+        - prometheus
+      ports:
+        - 3618:3000 #по умолчанию 3000
+      volumes:
+        - ./grafana:/var/lib/grafana #монтируем
+        - ./grafana/provisioning:/etc/grafana/provisioning/
+      container_name: grafana
+      hostname: grafana
+      restart: always
+      environment:
+        - TZ=Europe/Moscow #таймзона
+      networks:
+        - monitoring_system
+networks:
+  monitoring_system:
+    external: true #из существующих
+
